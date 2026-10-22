@@ -1,0 +1,83 @@
+<html lang=" es">
+
+<head>
+  
+    <meta charset=" UTF-8">
+    <title>CLUB ADSO</title>
+    <link rel = " Stylesheet" href="../Assets/css/Styles.css">
+</head>
+
+<body>
+    <div class = "contenedor-formulario">
+        <h2> Registro de Asociados Acerias </h2>
+        <form id="formRegistro" action="" method="post">
+            <div class=" grupo-input">
+               <label>Documento</label> 
+               <input Id=" documento" type = "number" placeholder="ej: 1012345678">
+            </div >
+            <div class=" grupo-input">
+                <label> Nombre</label>
+                <input Id = "nombre" type="text" placeholder="ej : juana">
+            </div>
+             <div class=" grupo-input">
+                <label> Apellido</label>
+                <input Id = "Apellido" type="text" placeholder="ej : Gonzalez">
+            </div>
+             <div class=" grupo-input">
+                <label> Telefono</label>
+                <input Id = "telefono" type="number" placeholder="ej : 3001234567">
+            </div>
+             <div class=" grupo-input">
+                <label> Email</label>
+                <input Id = "email" type="email" placeholder="ej : juana@gmail.com">
+            </div>
+               <div class=" grupo-input">
+                <label> Fecha de nacimiento </label>
+                <input Id = "Fecha de nacimiento" type="date" placeholder="ej :12/11/89">
+            </div>
+             <div class=" grupo-input">
+                <label>Direccion </label>
+                <input Id = "Direccion" type="text" placeholder="ej :Cra 6 #15A-15">
+            </div>
+             <div class=" grupo-input">
+                <label>Ciudad </label>
+                <select id = "ciudad " required>
+                    <option value="Sogamoso"> Sogamoso </option>
+                      <option value="Duitama"> Duitama </option>
+                        <option value="Tunja"> Tunja </option>
+                          <option value="Bogota"> Bogota </option>
+
+                </select>
+                
+            </div>
+             <div class=" grupo-input">
+                 <label>Genero:</label>
+                 <label>
+                <input type = "radio" id = "Femenino" name = "genero" value = "Femenino">
+                <span> Femenino</span>
+                 </label>
+                 <label>
+                <input type = "radio" id = "Masculino " name = "genero" value = "Masculino">
+                <span> Masculino</span>
+                </label>
+                <label>
+                <input type = "radio" id = "Otro" name = "genero"  value="Otro">
+                <span> Otro</span>
+                </label>
+               
+               
+                <input type = "radio" id = "Femenino " name = "genero"  value = "Femenino">
+
+                 <label> Femenino</label>
+            </div>
+
+            
+             <div class=" grupo-botones">
+                <button type = "submit" > Guardar </button>
+                <button type = "reset "> Limpiar Formulario</button>
+             </div>
+        </form>
+    </div>
+</body>
+
+</html>

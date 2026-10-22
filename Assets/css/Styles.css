@@ -1,0 +1,125 @@
+*{
+     margin: 0;
+    padding: 0;
+    font-family:  'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+body{
+    background-color: rgb(231, 167, 199);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+h2{
+    color: rgb(240, 229, 229);
+    text-align: center;
+    font-size: 25px;
+    border-bottom: 2px solid white;
+    padding-bottom: 10px;
+
+}
+.grupo-input {
+    margin-bottom:15px;
+    display: flex ;
+    flex-direction:column;
+}
+.grupo-botones{
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+button{
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    background-color:  rgb(255, 110, 212);
+    color: white;
+} 
+
+input, select{
+    padding: 10px;
+    border: 1px solid rgb(255, 1, 204);
+    border-radius: 15px;
+}
+
+input:focus, select:focus{
+    border-color: rgb(255, 110, 212);
+    box-shadow: 0 0 0 5px rgb(255, 110, 212);
+
+}
+.contenedor-formulario{
+    background-color: rgb(212, 252, 236);
+    padding:20px;
+    border-radius:8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+}
+button[type="submit"]{
+    background-color: rgb(255, 110, 212);
+    color: white;
+    
+}
+
+
+
+
+*{
+    margin: 0;
+    padding: 0;     
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: rgb(9, 0, 0);
+}
+ body{
+    background-color: rgb(231, 167, 199);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+      min-height: 100vh;
+ }
+h2{
+    color: rgb(109, 1, 77);
+    text-align: center;
+    font-size: 25px;
+    border-bottom: 2px solid white;
+    padding-bottom: 10px;
+
+}
+.group-input {
+    margin-bottom:15px;
+    display: flex ;
+    flex-direction:column;
+}
+button{
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    background-color:  rgb(236, 7, 167);
+    color: white;
+} 
+.group-botones{
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    
+}
+.registro{
+    text-align: center;
+    margin-top:20px;
+    color : rgb(107, 6, 92);
+    font-size:15px;
+}
+.registro a{
+    color:  rgb(109, 1, 77);
+    text-decoration: none;
+}
+.registro a:hover{
+    text-decoration: underline;
+}
