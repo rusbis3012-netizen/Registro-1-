@@ -3,14 +3,15 @@
         <meta charset="UTF-8">
         <title>Login</title>
         <link rel="stylesheet" type="text/css" href="../Assets/css/Styles.css">
+        
     </head>
 
 <body>
    <div>
     <h2>Login</h2>
 
-   <form id = "Iniciar sesion" action = "" method = "post">
-    <div class = "grupo-input">
+   <form id = "Login" action = "" method = "POST">
+    <div class = "Group-input">
         <label>Usuario</label>
         <input id = "Usuario" name = "Usuario" type = "text" placeholder = "Ingrese su usuario">
     </div> 
@@ -19,7 +20,9 @@
         <input id = "Contraseña" name = "Contraseña" type = "password" placeholder = "Ingrese su contraseña">
     </div> 
     <div class = "Group-botones">
-        <button type = "reset" id = "Iniciar sesion" name = "Iniciar sesion">Iniciar sesion</button>
+        <button type = "submit" id = "Iniciar sesion">Iniciar sesion</button>
+      
+
           
     </div>
     <div class ="registro">
@@ -28,3 +31,5 @@
     </div>
    </form> 
 </body>
+<script src="../controllers/login.js"></script>
+</html>
