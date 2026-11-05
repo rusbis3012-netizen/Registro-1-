@@ -1,47 +1,48 @@
 <html lang=" es">
 
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <meta charset=" UTF-8">
+    <meta charset="UTF-8">
     <title>CLUB ADSO</title>
-    <link rel = " Stylesheet" href="../Assets/css/Styles.css">
+    <link rel = "Stylesheet" href="../Assets/css/Styles.css">
 </head>
 
 <body>
     <div class = "contenedor-formulario">
         <h2> Registro de Asociados Acerias </h2>
-        <form id="formRegistro" action="" method="post">
+        <form id="formRegistro" action = "../modelo/guardarAsociado.php" method = "POST">
             <div class=" grupo-input">
                <label>Documento</label> 
-               <input Id=" documento" type = "number" placeholder="ej: 1012345678">
+               <input Id=" documento" name="documento" type = "number" placeholder="ej: 1012345678">
             </div >
             <div class=" grupo-input">
                 <label> Nombre</label>
-                <input Id = "nombre" type="text" placeholder="ej : juana">
+                <input Id = "nombre" name="nombres" type="text" placeholder="ej : juana">
             </div>
              <div class=" grupo-input">
                 <label> Apellido</label>
-                <input Id = "Apellido" type="text" placeholder="ej : Gonzalez">
+                <input Id = "Apellido" name="apellidos" type="text" placeholder="ej : Gonzalez">
             </div>
              <div class=" grupo-input">
                 <label> Telefono</label>
-                <input Id = "telefono" type="number" placeholder="ej : 3001234567">
+                <input Id = "telefono" name="telefono"  type="number" placeholder="ej : 3001234567">
             </div>
              <div class=" grupo-input">
                 <label> Email</label>
-                <input Id = "email" type="email" placeholder="ej : juana@gmail.com">
+                <input Id = "email" name="email" type="email" placeholder="ej : juana@gmail.com">
             </div>
                <div class=" grupo-input">
                 <label> Fecha de nacimiento </label>
-                <input Id = "Fecha de nacimiento" type="date" placeholder="ej :12/11/89">
+                <input Id = "Fecha de nacimiento" name="fechaNacimiento" type="date" placeholder="ej :12/11/89">
             </div>
              <div class=" grupo-input">
                 <label>Direccion </label>
-                <input Id = "Direccion" type="text" placeholder="ej :Cra 6 #15A-15">
+                <input Id = "Direccion" name="direccionResidencia" type="text" placeholder="ej :Cra 6 #15A-15">
             </div>
              <div class=" grupo-input">
                 <label>Ciudad </label>
-                <select id = "ciudad " required>
+                <select id = "ciudad " name="ciudad" required>
                     <option value="Sogamoso"> Sogamoso </option>
                       <option value="Duitama"> Duitama </option>
                         <option value="Tunja"> Tunja </option>
@@ -76,6 +77,7 @@
                 <button type = "submit" > Guardar </button>
                 <button type = "reset "> Limpiar Formulario</button>
              </div>
+             <p id = "mensajeRegistro" role = "status" aria-live="polite"></p>
         </form>
     </div>
 </body>
