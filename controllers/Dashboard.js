@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('TarjetasAdministrador').classList.add('d-none');
         document.getElementById('TarjetaAsociados').classList.remove('d-none');
         
+        
 
     }
 
