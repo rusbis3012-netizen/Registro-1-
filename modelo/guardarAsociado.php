@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
-require_once__DIR__.'/../modelo/Asociado.php';
+require_once __DIR__ .'/../modelo/Asociado.php';
 
 try{
 

@@ -1,6 +1,7 @@
-<?ph
+<?php
 require_once __DIR__.'/../Config/conexion.php';
-class Asociado{
+
+class Asociado {
     private $documento;
     private $nombres;
     private $apellidos;
@@ -12,7 +13,7 @@ class Asociado{
     private $fechaNacimiento;
     private $conexion;
 
-    public function __construct($datos){
+    public function __construct($datos) {
         $this->documento = $datos['documento'];
         $this->nombres = $datos['nombres'];
         $this->apellidos = $datos['apellidos'];
@@ -25,13 +26,15 @@ class Asociado{
 
         $conexion = new Conexion();
         $this->conexion = $conexion->conectar();
-
     }
-    public function guardar(){
+
+    public function guardar() {
         $sql = "INSERT INTO asociados (documento, nombres, apellidos, direccionResidencia, ciudad, telefono, email, genero, fechaNacimiento) VALUES (:documento, :nombres, :apellidos, :direccionResidencia, :ciudad, :telefono, :email, :genero, :fechaNacimiento)";
+        
         $consulta = $this->conexion->prepare($sql);
+        
         return $consulta->execute([
-            ":documento" => $this-> docmento,
+            ":documento" => $this->documento,          // CORREGIDO: Tenía un error de tipeo ($this-> docmento)
             ":nombres" => $this->nombres,
             ":apellidos" => $this->apellidos,
             ":direccionResidencia" => $this->direccionResidencia,
@@ -40,7 +43,6 @@ class Asociado{
             ":email" => $this->email,
             ":genero" => $this->genero,
             ":fechaNacimiento" => $this->fechaNacimiento
-        ])
-
+        ]);                                            // CORREGIDO: Faltaba el punto y coma (;) al final
     }
 }

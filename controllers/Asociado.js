@@ -16,17 +16,22 @@ formulario.addEventListener("submit", async function (event) {
 
     try{
         const respuesta = await fetch(formulario.action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Asociado)})
-        const resultado = await respuesta.json();
+        let resultado;
+        try {
+            resultado = await respuesta.json();
+        } catch {
+            throw new Error(`El servidor respondió con HTTP ${respuesta.status}, pero no devolvió JSON. Revisa la consola.`);
+        }
         //pasar la respuesta de json a un objeto de javascript 
-        document.getElementaryById("mensajeRegistro").textContent ="Guardando...";
-        document.getElementaryById("mensajeRegistro").dataset.tipo = "";
-        document.getElementaryById("mensajeRegistro").textContent = resultado.message;
+        document.getElementById("mensajeRegistro").textContent ="Guardando...";
+        document.getElementById("mensajeRegistro").dataset.tipo = "";
+        document.getElementById("mensajeRegistro").textContent = resultado.message;
         if (respuesta.ok && resultado.success){
             formulario.reset(); //Limpiar el formulario si la solicitud fue exitosa
         }
     }catch (error) {
         console.error("Error al enviar el formulario: ",error);
-        document.getElementaryById("mensajeRegistro").textContent = "Ocurrio un error al enviar el formulario. Por favor, intente nuevamente.";
+        document.getElementById("mensajeRegistro").textContent = error.message || "Ocurrió un error al enviar el formulario.";
     }finally{
         botonGuardar.disabled = false; //Habilitar el boton despues de procesar la solicitud.
     }
