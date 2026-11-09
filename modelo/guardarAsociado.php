@@ -22,7 +22,7 @@ try{
         http_response_code(400);
         throw new exception('Datos inválidos en la solicitud');
     }
-    $campos=["documento","nombres","apellidos","direccionResidencia","ciudad","telefono","email","genero","fechaNacimiento"];
+    $campos=["documento","nombres","apellidos","direccionResidencia","ciudad","telefono","email","genero","fechaNacimiento","Contraseña"];
     foreach($campos as $campo){
         if(!isset($datos[$campo])){
             http_response_code(400);

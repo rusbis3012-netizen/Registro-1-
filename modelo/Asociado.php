@@ -12,6 +12,7 @@ class Asociado {
     private $genero;
     private $fechaNacimiento;
     private $conexion;
+    private $Contraseña;
 
     public function __construct($datos) {
         $this->documento = $datos['documento'];
@@ -23,13 +24,14 @@ class Asociado {
         $this->email = $datos['email'];
         $this->genero = $datos['genero'];
         $this->fechaNacimiento = $datos['fechaNacimiento'];
+        $this->Contraseña = password_hash($datos['Contraseña'], PASSWORD_DEFAULT); // Hash de la contraseña
 
         $conexion = new Conexion();
         $this->conexion = $conexion->conectar();
     }
 
     public function guardar() {
-        $sql = "INSERT INTO asociados (documento, nombres, apellidos, direccionResidencia, ciudad, telefono, email, genero, fechaNacimiento) VALUES (:documento, :nombres, :apellidos, :direccionResidencia, :ciudad, :telefono, :email, :genero, :fechaNacimiento)";
+        $sql = "INSERT INTO asociados (documento, nombres, apellidos, direccionResidencia, ciudad, telefono, email, genero, fechaNacimiento, Contraseña) VALUES (:documento, :nombres, :apellidos, :direccionResidencia, :ciudad, :telefono, :email, :genero, :fechaNacimiento, :Contraseña)";
         
         $consulta = $this->conexion->prepare($sql);
         
@@ -42,7 +44,8 @@ class Asociado {
             ":telefono" => $this->telefono,
             ":email" => $this->email,
             ":genero" => $this->genero,
-            ":fechaNacimiento" => $this->fechaNacimiento
+            ":fechaNacimiento" => $this->fechaNacimiento,
+            ":Contraseña" => $this->Contraseña  
         ]);                                            // CORREGIDO: Faltaba el punto y coma (;) al final
     }
 }
