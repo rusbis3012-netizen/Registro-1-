@@ -31,7 +31,7 @@ class Asociado {
     }
 
     public function guardar() {
-        $sql = "INSERT INTO asociados (documento, nombres, apellidos, direccionResidencia, ciudad, telefono, email, genero, fechaNacimiento, Contraseña) VALUES (:documento, :nombres, :apellidos, :direccionResidencia, :ciudad, :telefono, :email, :genero, :fechaNacimiento, :Contraseña)";
+        $sql = "INSERT INTO asociados (documento, nombres, apellidos, direccionResidencia, ciudad, telefono, email, genero, fechaNacimiento, Contraseña) VALUES (:documento, :nombres, :apellidos, :direccionResidencia, :ciudad, :telefono, :email, :genero, :fechaNacimiento, :contrasena)";
         
         $consulta = $this->conexion->prepare($sql);
         
@@ -45,7 +45,7 @@ class Asociado {
             ":email" => $this->email,
             ":genero" => $this->genero,
             ":fechaNacimiento" => $this->fechaNacimiento,
-            ":Contraseña" => $this->Contraseña  
+            ":contrasena" => $this->Contraseña
         ]);                                            // CORREGIDO: Faltaba el punto y coma (;) al final
     }
 }
