@@ -12,7 +12,7 @@
         max-width: 600px;
         margin: 0 auto;
         padding: 20px;
-        background-color: #f8f9fa;
+        background-color: #f3cde6;
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(230, 163, 228, 0.1);
     }
@@ -22,7 +22,7 @@
     }
 
     h2 {
-        color: #c45d83;
+        color: #ce5883;
         font-weight: bold;
     }
 
@@ -49,6 +49,8 @@
 </style>
 
 <body>
+
+
     <div class="container mt-5">
         <h2 class="text-center mb-4">Actividades</h2>
         <form>
@@ -80,9 +82,15 @@
             <div class="d-flex justify-content-end gap-2 mt-4">
                 <button type="reset" class="btn btn-light">Limpiar</button>
                 <button type="button" class="btn btn-secondary">Cancelar</button>
-                <button type="submit" class="btn btn-danger">Guardar actividad</button>
+                <a href="TablaActividades.html">
+                    <button type="submit" class="btn btn-danger">Guardar actividad
+                </a>
+                </button>
             </div>
         </form>
     </div>
+    <script src = "../controllers/Actividades.js"></script>
+
 </body>
+
 </html>

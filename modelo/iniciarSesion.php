@@ -5,6 +5,7 @@ header('Content-Type: application/json; charset=utf-8');
 try {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
+        //saltar a catch y mostrar el mensaje de error
         throw new Exception('Método no permitido. Solo se permite POST');
     }
 
