@@ -28,6 +28,7 @@ async function cargarActividades() {
     try {
         const resultado = await solicitarApi("GET");
         esAdministrador = resultado.rol === "Admin"
+        
         configurarAcciones();
 
         actividades = resultado.actividades;
