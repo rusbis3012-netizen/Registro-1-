@@ -50,7 +50,7 @@ if (formularioRegistro) {
             mensaje.textContent = resultado.message;
 
             if (respuesta.ok && resultado.success) {
-                formularioRegistro.reset();
+                formularioRegistro.reset();//limpia los campos 
             }
         } catch (error) {
             console.error("Error al enviar el formulario:", error);
@@ -140,7 +140,7 @@ async function cargarAsociados() {
         esAdministrador = rol === "admin" || rol === "administrador";
         const botonNuevoAsociado = document.getElementById("nuevoAsociado");
         if (botonNuevoAsociado) {
-            botonNuevoAsociado.classList.toggle("d-none", !esAdministrador);
+            botonNuevoAsociado.classList.toggle("d-none", !esAdministrador);//toggle agrega o quita una clase
         }
 
         configurarAcciones();

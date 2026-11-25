@@ -10,7 +10,6 @@ async function solicitarApi(metodo, datos) {
     const opciones = {
         method: metodo,
         cache: "no-store",
-        //asignas el valor que le dimos arriba en la funcion como parametro 
         headers: { 'Content-Type': 'application/json' },
     };
 
@@ -60,9 +59,8 @@ async function cargarActividades() {
 }
 
 function mostrarActividades() {
-    listaActividades.replaceChildren();
+    listaActividades.replaceChildren();// elimina todo lo que haya dentro del elemento HTML que tiene el ID listaActividades.
 
-    // Crea una fila y guarda que no hay actividades disponibles, lo crea  solo si no encuentra las actividades en la base de datos.
     if (actividades.length === 0) {
         const fila = document.createElement("tr");
         const celda = document.createElement("td");
