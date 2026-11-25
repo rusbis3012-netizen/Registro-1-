@@ -63,21 +63,27 @@
             <input type="date" class="form-control mb-3" id="fechaEvento" name="fechaEvento">
             <label for="lugar" class="form-label">municipio</label>
             <input type="text" class="form-control mb-3" id="municipio" name="municipio">
-            <label for="total" class="form-label">totalRecaudado</label>
-            <input type="text" class="form-control mb-3" id="totalRecaudo" name="totalRecaudado"
-                placeholder="Ingrese el total recaudado">
+            <label for="totalRecaudo" class="form-label">Total recaudado:</label>
+            <input type="number" class="form-control mb-1" id="totalRecaudo" name="totalRecaudado"
+                min="0" step="0.01" placeholder="Ingrese el total recaudado">
+            <small class="form-text d-block mb-3">
+                Ingresa el total final al marcar la actividad como finalizada.
+            </small>
             <label for="responsable" class="form-label">Responsable:</label>
             <input type="text" class="form-control mb-3" id="responsable" name="responsable"
                 placeholder="Nombre del responsable">
 
             <label for="estado" class="form-label">Estado de la actividad:</label>
-            <select class="form-select mb-3" id="estado" name="estado">
-                <option value="">Seleccione un estado</option>
-                <option>Programada</option>
-                <option>En curso</option>
-                <option>Finalizada</option>
-                <option>Cancelada</option>
+            <select class="form-select mb-3" id="estado" name="estado" required>
+                <option value="Programada" selected>Programada</option>
+                <option value="En curso">En curso</option>
+                <option value="Finalizada">Finalizada</option>
+                <option value="Cancelada">Cancelada</option>
             </select>
+            <div class="alert alert-info py-2">
+                Al finalizar se cierra la participación y se calcula el reparto. Si no hay participantes, todo el
+                recaudo se asigna al fondo del club.
+            </div>
             <div class="d-flex justify-content-end gap-2 mt-4">
                 <button type="reset" class="btn btn-light">Limpiar</button>
                 <button type="button" class="btn btn-secondary">Cancelar</button>

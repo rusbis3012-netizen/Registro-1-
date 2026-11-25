@@ -16,7 +16,10 @@ try {
 
     $rol = mb_strtolower(trim((string) $_SESSION['rol']), 'UTF-8');
     $esAdministrador = in_array($rol, ['admin', 'administrador'], true);
-    if ($metodo !== 'GET' && !$esAdministrador) {
+    $esAsociado = $rol === 'asociado';
+    if ($metodo !== 'GET' &&
+        !$esAdministrador &&
+        !($esAsociado && $metodo === 'POST')) {
         http_response_code(403);
         throw new Exception('No tienes permisos para realizar esta accion');
     }
@@ -27,18 +30,21 @@ try {
 
     if ($metodo === 'GET') {
         $idAsociado = null;
+        $prestamosParaPago = [];
         if (!$esAdministrador) {
             $idAsociado = Asociado::obtenerIdPorDocumento(trim((string) $_SESSION['documento']));
             if ($idAsociado === false) {
                 http_response_code(404);
                 throw new Exception('No se encontró el asociado de la sesión');
             }
+            $prestamosParaPago = $pago->listarPrestamosParaPago($idAsociado);
         }
 
         echo json_encode([
             'success' => true,
             'rol' => $_SESSION['rol'],
-            'pagos' => $pago->listar($idAsociado)
+            'pagos' => $pago->listar($idAsociado),
+            'prestamosParaPago' => $prestamosParaPago
         ]);
         exit;
     }
@@ -56,6 +62,28 @@ try {
             throw new Exception('No se encontro el pago');
         }
         echo json_encode(['success' => true, 'message' => 'Pago eliminado']);
+        exit;
+    }
+
+    if ($esAsociado && $metodo === 'POST') {
+        $idPrestamo = filter_var($datos['idPrestamo'] ?? null, FILTER_VALIDATE_INT);
+        if (!$idPrestamo) {
+            http_response_code(400);
+            throw new Exception('Selecciona un prestamo valido');
+        }
+
+        $idAsociado = Asociado::obtenerIdPorDocumento(trim((string) $_SESSION['documento']));
+        if ($idAsociado === false) {
+            http_response_code(404);
+            throw new Exception('No se encontro el asociado de la sesion');
+        }
+
+        $pagoRegistrado = $pago->registrarCuotaMensual($idPrestamo, $idAsociado);
+        echo json_encode([
+            'success' => true,
+            'message' => 'Cuota mensual registrada correctamente',
+            'pago' => $pagoRegistrado
+        ]);
         exit;
     }
 

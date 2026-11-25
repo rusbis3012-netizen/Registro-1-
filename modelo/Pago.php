@@ -28,6 +28,122 @@ class Pago {
         return $consulta->fetchAll();
     }
 
+    public function listarPrestamosParaPago($idAsociado) {
+        [$inicioMes, $inicioMesSiguiente] = $this->rangoMesActual();
+        $consulta = $this->conexion->prepare(
+            "SELECT idPrestamo, valorPrestamo, tasaInteres, numeroCuotas
+             FROM prestamos
+             WHERE idAsociado = :idAsociado
+             ORDER BY fechaPrestamo DESC"
+        );
+        $consulta->execute([':idAsociado' => $idAsociado]);
+        $prestamos = [];
+
+        foreach ($consulta->fetchAll() as $prestamo) {
+            $resumen = $this->resumenCuotas(
+                $prestamo['idPrestamo'],
+                $inicioMes,
+                $inicioMesSiguiente
+            );
+            $numeroCuotas = (int) $prestamo['numeroCuotas'];
+            $cuotaMensual = $this->calcularCuotaMensual(
+                (float) $prestamo['valorPrestamo'],
+                (float) $prestamo['tasaInteres'],
+                $numeroCuotas
+            );
+            $saldoPendiente = round(
+                $cuotaMensual * $numeroCuotas - (float) $resumen['totalPagado'],
+                2
+            );
+
+            if ((int) $resumen['pagosMes'] > 0 ||
+                (int) $resumen['cantidadPagos'] >= $numeroCuotas ||
+                $saldoPendiente <= 0) {
+                continue;
+            }
+
+            $prestamos[] = [
+                'idPrestamo' => (int) $prestamo['idPrestamo'],
+                'valorCuota' => round(min($cuotaMensual, $saldoPendiente), 2)
+            ];
+        }
+
+        return $prestamos;
+    }
+
+    public function registrarCuotaMensual($idPrestamo, $idAsociado) {
+        [$inicioMes, $inicioMesSiguiente, $fechaPago] = $this->rangoMesActual();
+        $this->conexion->beginTransaction();
+
+        try {
+            $consulta = $this->conexion->prepare(
+                "SELECT idPrestamo, valorPrestamo, tasaInteres, numeroCuotas
+                 FROM prestamos
+                 WHERE idPrestamo = :idPrestamo AND idAsociado = :idAsociado
+                 FOR UPDATE"
+            );
+            $consulta->execute([
+                ':idPrestamo' => $idPrestamo,
+                ':idAsociado' => $idAsociado
+            ]);
+            $prestamo = $consulta->fetch();
+
+            if (!$prestamo) {
+                throw new Exception('No se encontro el prestamo asociado a tu cuenta');
+            }
+
+            $resumen = $this->resumenCuotas(
+                $idPrestamo,
+                $inicioMes,
+                $inicioMesSiguiente
+            );
+            if ((int) $resumen['pagosMes'] > 0) {
+                throw new Exception('Ya realizaste el pago de este prestamo este mes');
+            }
+
+            $numeroCuotas = (int) $prestamo['numeroCuotas'];
+            if ((int) $resumen['cantidadPagos'] >= $numeroCuotas) {
+                throw new Exception('Este prestamo ya tiene todas sus cuotas pagadas');
+            }
+
+            $cuotaMensual = $this->calcularCuotaMensual(
+                (float) $prestamo['valorPrestamo'],
+                (float) $prestamo['tasaInteres'],
+                $numeroCuotas
+            );
+            $saldoPendiente = round(
+                $cuotaMensual * $numeroCuotas - (float) $resumen['totalPagado'],
+                2
+            );
+            if ($saldoPendiente <= 0) {
+                throw new Exception('Este prestamo ya esta pagado');
+            }
+
+            $valorCuota = round(min($cuotaMensual, $saldoPendiente), 2);
+            $consulta = $this->conexion->prepare(
+                "INSERT INTO pagos_cuotas (valorCuota, fechaPago, idPrestamo)
+                 VALUES (:valorCuota, :fechaPago, :idPrestamo)"
+            );
+            $consulta->execute([
+                ':valorCuota' => $valorCuota,
+                ':fechaPago' => $fechaPago,
+                ':idPrestamo' => $idPrestamo
+            ]);
+
+            $this->conexion->commit();
+            return [
+                'idPago' => (int) $this->conexion->lastInsertId(),
+                'valorCuota' => $valorCuota,
+                'fechaPago' => $fechaPago
+            ];
+        } catch (Throwable $e) {
+            if ($this->conexion->inTransaction()) {
+                $this->conexion->rollBack();
+            }
+            throw $e;
+        }
+    }
+
     public function guardar($datos) {
         $consulta = $this->conexion->prepare(
             "INSERT INTO pagos_cuotas (valorCuota, fechaPago, idPrestamo)
@@ -63,5 +179,55 @@ class Pago {
         );
         $consulta->execute([':idPago' => $idPago]);
         return $consulta->rowCount() > 0;
+    }
+
+    private function resumenCuotas($idPrestamo, $inicioMes, $inicioMesSiguiente) {
+        $consulta = $this->conexion->prepare(
+            "SELECT COUNT(*) AS cantidadPagos,
+                    COALESCE(SUM(valorCuota), 0) AS totalPagado,
+                    COALESCE(SUM(
+                        CASE
+                            WHEN fechaPago >= :inicioMes AND fechaPago < :inicioMesSiguiente
+                            THEN 1 ELSE 0
+                        END
+                    ), 0) AS pagosMes
+             FROM pagos_cuotas
+             WHERE idPrestamo = :idPrestamo"
+        );
+        $consulta->execute([
+            ':idPrestamo' => $idPrestamo,
+            ':inicioMes' => $inicioMes,
+            ':inicioMesSiguiente' => $inicioMesSiguiente
+        ]);
+        return $consulta->fetch();
+    }
+
+    private function calcularCuotaMensual($valorPrestamo, $tasaInteres, $numeroCuotas) {
+        if ($valorPrestamo <= 0 || $tasaInteres < 0 || $numeroCuotas <= 0) {
+            throw new Exception('Los datos del prestamo no permiten calcular la cuota');
+        }
+
+        $tasaMensual = $tasaInteres / 100;
+        if ($tasaMensual === 0.0) {
+            return round($valorPrestamo / $numeroCuotas, 2);
+        }
+
+        return round(
+            $valorPrestamo * $tasaMensual / (1 - pow(1 + $tasaMensual, -$numeroCuotas)),
+            2
+        );
+    }
+
+    private function rangoMesActual() {
+        $zonaHoraria = new DateTimeZone('America/Bogota');
+        $inicioMes = new DateTimeImmutable('first day of this month', $zonaHoraria);
+        $inicioMesSiguiente = $inicioMes->modify('first day of next month');
+        $fechaPago = new DateTimeImmutable('today', $zonaHoraria);
+
+        return [
+            $inicioMes->format('Y-m-d'),
+            $inicioMesSiguiente->format('Y-m-d'),
+            $fechaPago->format('Y-m-d')
+        ];
     }
 }

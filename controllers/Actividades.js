@@ -1,6 +1,7 @@
 const listaActividades = document.getElementById("listaActividades");
 // Busca en el HTML el elemento que tenga id listaActividades
 let esAdministrador = false;
+let esAsociado = false;
 let actividades = [];
 //arreglo vacio donde se guardan las variables que mandes de php
 const formularioActividad = document.getElementById("formActividad");
@@ -50,6 +51,7 @@ async function cargarActividades() {
             throw new Error("No se pudo identificar el rol de la sesión.");
         }
         esAdministrador = rol === "admin" || rol === "administrador";
+        esAsociado = rol === "asociado";
         configurarAcciones();
         actividades = resultado.actividades;
         mostrarActividades();
@@ -64,7 +66,7 @@ function mostrarActividades() {
     if (actividades.length === 0) {
         const fila = document.createElement("tr");
         const celda = document.createElement("td");
-        celda.colSpan = esAdministrador ? 5 : 4; //Si es administrador crea 5 celdas , si no es admin crea 4 , trae lo de la base de datos.
+        celda.colSpan = 9;
         celda.className = "text-center py-4 text-muted";
         celda.textContent = "No hay actividades disponibles. ";
         fila.append(celda);
@@ -78,7 +80,15 @@ function mostrarActividades() {
             crearCelda(actividad.nombreActividad),
             crearCelda(actividad.fechaEvento),
             crearCelda(actividad.municipio),
-            crearCelda(actividad.totalRecaudado === null ? "Pendiente" : Number(actividad.totalRecaudado).toLocaleString("es-CO", { style: "currency", currency: "COP" })),
+            crearCelda(formatearMoneda(actividad.totalRecaudado)),
+            crearCelda(actividad.totalParticipantes),
+            crearCelda(actividad.estado),
+            crearCelda(actividad.estado === "Finalizada"
+                ? formatearMoneda(actividad.montoFondoClub)
+                : "Pendiente"),
+            crearCelda(actividad.estado === "Finalizada"
+                ? formatearMoneda(actividad.montoPorAsociado)
+                : "Pendiente")
         );
         if (esAdministrador) {
             const acciones = document.createElement("td");
@@ -100,16 +110,57 @@ function mostrarActividades() {
 
             acciones.append(botonEditar, botonEliminar);//.append agregar a la celda los botones.
             fila.append(acciones);
-
+        } else if (esAsociado) {
+            const participacion = document.createElement("td");
+            const yaParticipa = Number(actividad.asociadoParticipa) === 1;
+            const cerrada = ["Finalizada", "Cancelada"].includes(actividad.estado);
+            const botonParticipacion = document.createElement("button");
+            botonParticipacion.type = "button";
+            botonParticipacion.className = yaParticipa
+                ? "btn btn-sm btn-outline-danger"
+                : "btn btn-sm btn-outline-success";
+            botonParticipacion.textContent = cerrada
+                ? "Cerrada"
+                : yaParticipa ? "Cancelar participación" : "Participar";
+            botonParticipacion.disabled = cerrada;
+            if (!cerrada) {
+                botonParticipacion.addEventListener("click", () =>
+                    cambiarParticipacion(actividad, yaParticipa)
+                );
+            }
+            participacion.append(botonParticipacion);
+            fila.append(participacion);
         }
         listaActividades.append(fila);
     });
 }
 
-function crearCelda(texto){
+function crearCelda(texto) {
     const celda = document.createElement("td");
-    celda.textContent = texto;
+    celda.textContent = texto ?? "";
     return celda;
+}
+
+function formatearMoneda(valor) {
+    if (valor === null || valor === undefined || valor === "") {
+        return "Pendiente";
+    }
+    return Number(valor).toLocaleString("es-CO", {
+        style: "currency",
+        currency: "COP",
+        maximumFractionDigits: 2
+    });
+}
+
+async function cambiarParticipacion(actividad, yaParticipa) {
+    try {
+        await solicitarApi(yaParticipa ? "DELETE" : "POST", {
+            idActividad: Number(actividad.idActividad)
+        });
+        await cargarActividades();
+    } catch (error) {
+        alert(error.message);
+    }
 }
 
 async function eliminarActividad(actividad){
@@ -138,12 +189,16 @@ async function abrirEdicion(actividad) {
 function configurarAcciones(){
     const botonNueva = document.getElementById("nuevaActividad");
     const encabezadoAcciones = document.getElementById("encabezadoAcciones");
+    const encabezadoParticipacion = document.getElementById("encabezadoParticipacion");
 
     if (botonNueva) {
         botonNueva.classList.toggle("d-none", !esAdministrador);
     }
     if (encabezadoAcciones) {
         encabezadoAcciones.classList.toggle("d-none", !esAdministrador);
+    }
+    if (encabezadoParticipacion) {
+        encabezadoParticipacion.classList.toggle("d-none", !esAsociado);
     }
 }
 const rolLocal = (localStorage.getItem("rol") || "").trim().toLowerCase();
@@ -160,6 +215,10 @@ if (formularioActividad && !["admin", "administrador"].includes(rolLocal)) {
         document.getElementById("fechaEvento").value = actividadEditar.fechaEvento;
         document.getElementById("municipio").value = actividadEditar.municipio;
         document.getElementById("totalRecaudo").value = actividadEditar.totalRecaudado ?? "";
+        document.getElementById("estado").value = actividadEditar.estado;
+        if (["Finalizada", "Cancelada"].includes(actividadEditar.estado)) {
+            document.getElementById("estado").disabled = true;
+        }
         document.querySelector("h2").textContent = "Editar actividad";
         formularioActividad.querySelector('button[type="submit"]').textContent = "Guardar cambios";
         sessionStorage.removeItem("actividadEditar");
@@ -174,7 +233,8 @@ if (formularioActividad && !["admin", "administrador"].includes(rolLocal)) {
             nombreActividad: formularioActividad.elements.nombreActividad.value.trim(),
             fechaEvento: formularioActividad.elements.fechaEvento.value,
             municipio: formularioActividad.elements.municipio.value.trim(),
-            totalRecaudado: totalRecaudado === "" ? null : Number(totalRecaudado)
+            totalRecaudado: totalRecaudado === "" ? null : Number(totalRecaudado),
+            estado: formularioActividad.elements.estado.value
         };
 
         if (idActividad) {

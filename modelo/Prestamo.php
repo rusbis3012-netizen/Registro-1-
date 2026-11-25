@@ -78,4 +78,22 @@ class Prestamo {
         $consulta->execute([':idPrestamo' => $idPrestamo]);
         return $consulta->rowCount() > 0;
     }
+
+    public function sumaPrestamo($idAsociado, $idPrestamoExcluir = null) {
+        $sql = "SELECT COUNT(*) AS cantidad,
+                       COALESCE(SUM(valorPrestamo), 0) AS total
+                FROM prestamos
+                WHERE idAsociado = :idAsociado";
+
+        $parametros = [':idAsociado' => $idAsociado];
+
+        if ($idPrestamoExcluir !== null) {
+            $sql .= " AND idPrestamo <> :idPrestamoExcluir";
+            $parametros[':idPrestamoExcluir'] = $idPrestamoExcluir;
+        }
+
+        $consulta = $this->conexion->prepare($sql);
+        $consulta->execute($parametros);
+        return $consulta->fetch(PDO::FETCH_ASSOC);
+    }
 }

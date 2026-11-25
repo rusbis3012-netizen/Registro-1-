@@ -106,6 +106,42 @@ try {
     validarFechaPrestamo($campos['fechaPrestamo']);
     $campos['idAsociado'] = $asociado['idAsociado'];
 
+    $montoPrestamo = filter_var($campos['valorPrestamo'], FILTER_VALIDATE_FLOAT);
+    if ($montoPrestamo === false || $montoPrestamo <= 0) {
+        http_response_code(400);
+        throw new Exception('El valor del prestamo no es valido');
+    }
+    $campos['valorPrestamo'] = $montoPrestamo;
+
+    $idPrestamoExcluir = null;
+    if ($metodo === 'PUT') {
+        $idPrestamoExcluir = filter_var($datos['idPrestamo'] ?? null, FILTER_VALIDATE_INT);
+        if (!$idPrestamoExcluir) {
+            http_response_code(400);
+            throw new Exception('Identificador invalido');
+        }
+        $campos['idPrestamo'] = $idPrestamoExcluir;
+    }
+
+    $resumenPrestamos = $prestamo->sumaPrestamo(
+        $campos['idAsociado'],
+        $idPrestamoExcluir
+    );
+
+    if ((int) $resumenPrestamos['cantidad'] >= 3) {
+        http_response_code(400);
+        throw new Exception('El asociado ya tiene 3 prestamos activos');
+    }
+
+    $totalConNuevoPrestamo = round(
+        (float) $resumenPrestamos['total'] + $montoPrestamo,
+        2
+    );
+    if ($totalConNuevoPrestamo > 80000000) {
+        http_response_code(400);
+        throw new Exception('El total de prestamos superaria los 80 millones');
+    }
+
     if ($metodo === 'POST') {
         if (!$prestamo->guardar($campos)) {
             http_response_code(500);
@@ -113,12 +149,6 @@ try {
         }
         echo json_encode(['success' => true, 'message' => 'Prestamo registrado']);
     } else {
-        $idPrestamo = filter_var($datos['idPrestamo'] ?? null, FILTER_VALIDATE_INT);
-        if (!$idPrestamo) {
-            http_response_code(400);
-            throw new Exception('Identificador invalido');
-        }
-        $campos['idPrestamo'] = $idPrestamo;
         if (!$prestamo->editar($campos)) {
             http_response_code(404);
             throw new Exception('No se encontro el prestamo');
