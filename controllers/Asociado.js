@@ -4,6 +4,21 @@ const listaAsociados = document.getElementById("listaAsociados");
 let esAdministrador = false;
 let documentoEditar = null;
 
+const hoy = new Date();
+const fechaMaximaNacimiento = new Date(
+    hoy.getFullYear() - 18,
+    hoy.getMonth(),
+    hoy.getDate()
+);
+const fechaMaximaNacimientoISO = [
+    fechaMaximaNacimiento.getFullYear(),
+    String(fechaMaximaNacimiento.getMonth() + 1).padStart(2, "0"),
+    String(fechaMaximaNacimiento.getDate()).padStart(2, "0")
+].join("-");
+document.querySelectorAll('input[name="fechaNacimiento"]').forEach((input) => {
+    input.max = fechaMaximaNacimientoISO;
+});
+
 if (formularioRegistro) {
     formularioRegistro.addEventListener("submit", async function (event) {
         event.preventDefault();
@@ -189,7 +204,6 @@ function crearCeldaAcciones(asociado) {
     botonEditar.className = "btn btn-sm btn-outline-primary me-2";
     botonEditar.title = "Editar asociado";
     botonEditar.setAttribute("aria-label", "Editar asociado");
-    botonEditar.textContent = "Editar";
     botonEditar.innerHTML = '<i class="bi bi-pencil-square" aria-hidden="true"></i>';
     botonEditar.addEventListener("click", () => editarAsociado(asociado));
 
@@ -198,7 +212,6 @@ function crearCeldaAcciones(asociado) {
     botonEliminar.className = "btn btn-sm btn-outline-danger";
     botonEliminar.title = "Eliminar asociado";
     botonEliminar.setAttribute("aria-label", "Eliminar asociado");
-    botonEliminar.textContent = "Eliminar";
     botonEliminar.innerHTML = '<i class="bi bi-trash3-fill" aria-hidden="true"></i>';
     botonEliminar.addEventListener("click", () => eliminarAsociado(asociado));
 

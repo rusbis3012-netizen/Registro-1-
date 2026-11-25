@@ -22,13 +22,23 @@ try {
     }
 
     require_once __DIR__.'/Pago.php';
+    require_once __DIR__.'/Asociado.php';
     $pago = new Pago();
 
     if ($metodo === 'GET') {
+        $idAsociado = null;
+        if (!$esAdministrador) {
+            $idAsociado = Asociado::obtenerIdPorDocumento(trim((string) $_SESSION['documento']));
+            if ($idAsociado === false) {
+                http_response_code(404);
+                throw new Exception('No se encontró el asociado de la sesión');
+            }
+        }
+
         echo json_encode([
             'success' => true,
             'rol' => $_SESSION['rol'],
-            'pagos' => $pago->listar()
+            'pagos' => $pago->listar($idAsociado)
         ]);
         exit;
     }

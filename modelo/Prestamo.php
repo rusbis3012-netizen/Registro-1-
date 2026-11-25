@@ -8,16 +8,22 @@ class Prestamo {
         $this->conexion = (new Conexion())->conectar();
     }
 
-    public function listar() {
-        $consulta = $this->conexion->prepare(
-            "SELECT p.idPrestamo, p.valorPrestamo, p.tasaInteres,
-                    p.numeroCuotas, p.fechaPrestamo, p.idAsociado,
-                    a.documento, a.nombres, a.apellidos
-             FROM prestamos p
-             JOIN asociados a ON a.idAsociado = p.idAsociado
-             ORDER BY p.fechaPrestamo DESC"
-        );
-        $consulta->execute();
+    public function listar($idAsociado = null) {
+        $sql = "SELECT p.idPrestamo, p.valorPrestamo, p.tasaInteres,
+                       p.numeroCuotas, p.fechaPrestamo, p.idAsociado,
+                       a.documento, a.nombres, a.apellidos
+                FROM prestamos p
+                JOIN asociados a ON a.idAsociado = p.idAsociado";
+        $parametros = [];
+
+        if ($idAsociado !== null) {
+            $sql .= " WHERE p.idAsociado = :idAsociado";
+            $parametros[':idAsociado'] = $idAsociado;
+        }
+
+        $sql .= " ORDER BY p.fechaPrestamo DESC";
+        $consulta = $this->conexion->prepare($sql);
+        $consulta->execute($parametros);
         return $consulta->fetchAll();
     }
 

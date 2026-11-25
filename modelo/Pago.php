@@ -8,17 +8,23 @@ class Pago {
         $this->conexion = (new Conexion())->conectar();
     }
 
-    public function listar() {
-        $consulta = $this->conexion->prepare(
-            "SELECT pg.idPago, pg.valorCuota, pg.fechaPago, pg.idPrestamo,
-                    p.valorPrestamo, p.fechaPrestamo,
-                    a.documento, a.nombres, a.apellidos
-             FROM pagos_cuotas pg
-             JOIN prestamos p ON p.idPrestamo = pg.idPrestamo
-             JOIN asociados a ON a.idAsociado = p.idAsociado
-             ORDER BY pg.fechaPago DESC"
-        );
-        $consulta->execute();
+    public function listar($idAsociado = null) {
+        $sql = "SELECT pg.idPago, pg.valorCuota, pg.fechaPago, pg.idPrestamo,
+                       p.valorPrestamo, p.fechaPrestamo,
+                       a.documento, a.nombres, a.apellidos
+                FROM pagos_cuotas pg
+                JOIN prestamos p ON p.idPrestamo = pg.idPrestamo
+                JOIN asociados a ON a.idAsociado = p.idAsociado";
+        $parametros = [];
+
+        if ($idAsociado !== null) {
+            $sql .= " WHERE p.idAsociado = :idAsociado";
+            $parametros[':idAsociado'] = $idAsociado;
+        }
+
+        $sql .= " ORDER BY pg.fechaPago DESC";
+        $consulta = $this->conexion->prepare($sql);
+        $consulta->execute($parametros);
         return $consulta->fetchAll();
     }
 

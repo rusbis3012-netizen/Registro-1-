@@ -49,16 +49,31 @@ class Asociado {
         ]);                                            // CORREGIDO: Faltaba el punto y coma (;) al final
     }
 
-    public static function listar() {
+    public static function listar($idAsociado = null) {
+        $conexion = new Conexion();
+        $sql = "SELECT documento, nombres, apellidos, direccionResidencia, ciudad,
+                       telefono, email, genero, fechaNacimiento
+                FROM asociados";
+        $parametros = [];
+
+        if ($idAsociado !== null) {
+            $sql .= " WHERE idAsociado = :idAsociado";
+            $parametros[':idAsociado'] = $idAsociado;
+        }
+
+        $sql .= " ORDER BY nombres, apellidos";
+        $consulta = $conexion->conectar()->prepare($sql);
+        $consulta->execute($parametros);
+        return $consulta->fetchAll();
+    }
+
+    public static function obtenerIdPorDocumento($documento) {
         $conexion = new Conexion();
         $consulta = $conexion->conectar()->prepare(
-            "SELECT documento, nombres, apellidos, direccionResidencia, ciudad,
-                    telefono, email, genero, fechaNacimiento
-             FROM asociados
-             ORDER BY nombres, apellidos"
+            "SELECT idAsociado FROM asociados WHERE documento = :documento"
         );
-        $consulta->execute();
-        return $consulta->fetchAll();
+        $consulta->execute([":documento" => $documento]);
+        return $consulta->fetchColumn();
     }
 
     public static function editar($datos) {

@@ -3,6 +3,14 @@ const listaPrestamos = document.getElementById("listaPrestamos");
 const tituloModalPrestamo = document.getElementById("tituloModalPrestamo");
 let esAdministrador = false;
 
+const hoy = new Date();
+const fechaMinimaPrestamo = [
+    hoy.getFullYear(),
+    String(hoy.getMonth() + 1).padStart(2, "0"),
+    String(hoy.getDate()).padStart(2, "0")
+].join("-");
+document.getElementById("fechaPrestamo").min = fechaMinimaPrestamo;
+
 async function solicitarPrestamos(metodo, datos) {
     const opciones = {
         method: metodo,

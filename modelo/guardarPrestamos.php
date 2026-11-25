@@ -2,6 +2,30 @@
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
+function validarFechaPrestamo($fechaPrestamo) {
+    if (!is_string($fechaPrestamo)) {
+        http_response_code(400);
+        throw new Exception('La fecha del préstamo no es válida');
+    }
+
+    $zonaHoraria = new DateTimeZone('America/Bogota');
+    $fecha = DateTimeImmutable::createFromFormat('!Y-m-d', $fechaPrestamo, $zonaHoraria);
+    $errores = DateTimeImmutable::getLastErrors();
+
+    if ($fecha === false ||
+        $fecha->format('Y-m-d') !== $fechaPrestamo ||
+        ($errores !== false && ($errores['warning_count'] > 0 || $errores['error_count'] > 0))) {
+        http_response_code(400);
+        throw new Exception('La fecha del préstamo no es válida');
+    }
+
+    $hoy = new DateTimeImmutable('today', $zonaHoraria);
+    if ($fecha < $hoy) {
+        http_response_code(400);
+        throw new Exception('La fecha del préstamo debe ser hoy o una fecha futura');
+    }
+}
+
 try {
     if (!isset($_SESSION['documento'], $_SESSION['rol'])) {
         http_response_code(401);
@@ -22,13 +46,23 @@ try {
     }
 
     require_once __DIR__.'/Prestamo.php';
+    require_once __DIR__.'/Asociado.php';
     $prestamo = new Prestamo();
 
     if ($metodo === 'GET') {
+        $idAsociado = null;
+        if (!$esAdministrador) {
+            $idAsociado = Asociado::obtenerIdPorDocumento(trim((string) $_SESSION['documento']));
+            if ($idAsociado === false) {
+                http_response_code(404);
+                throw new Exception('No se encontró el asociado de la sesión');
+            }
+        }
+
         echo json_encode([
             'success' => true,
             'rol' => $_SESSION['rol'],
-            'prestamos' => $prestamo->listar()
+            'prestamos' => $prestamo->listar($idAsociado)
         ]);
         exit;
     }
@@ -69,6 +103,7 @@ try {
         }
     }
 
+    validarFechaPrestamo($campos['fechaPrestamo']);
     $campos['idAsociado'] = $asociado['idAsociado'];
 
     if ($metodo === 'POST') {
