@@ -1,126 +1,198 @@
 const listaActividades = document.getElementById("listaActividades");
+// Busca en el HTML el elemento que tenga id listaActividades
 let esAdministrador = false;
 let actividades = [];
+//arreglo vacio donde se guardan las variables que mandes de php
+const formularioActividad = document.getElementById("formActividad");
 
 async function solicitarApi(metodo, datos) {
-    //solicitarApi es una variable que trae los datos 
+//declaramos las funcion y le damos los metodos que va a recibir
     const opciones = {
         method: metodo,
+        cache: "no-store",
+        //asignas el valor que le dimos arriba en la funcion como parametro 
         headers: { 'Content-Type': 'application/json' },
-    }
+    };
+
     if (datos) {
         opciones.body = JSON.stringify(datos);
+        //verifica si la funcion recibio datos y 
+        //el opciones.body es el contenido que envias a la peticion
+        //y con el stringify los pasas a json
     }
-    const respuesta = await fetch("../modelo/gestionarActividades.php", opciones);
+
+    const respuesta = await fetch("../modelo/guardarActividades.php", opciones);
+    //envia la solicitud al archivo php que es guardaractividades
     const resultado = await respuesta.json();
-    if (respuesta.status === 401) {
+    //convertimos esa respuesta de arriba a json
+
+    if (respuesta.status === 401) {//401 cuando el usuario no esta autenticado
         window.location.href = "login.html";
+        //verifica si el usuario no esta autenticado
     }
-    //401 cuando el usuario no esta autenticado 
-    //403 cuando el usuario no tiene el permiso 
+
     if (!respuesta.ok || !resultado.success) {
-        throw new Error(resultado.mensaje || "Error en la solicitud");
+        throw new Error(resultado.mensaje || resultado.message || "Error en la solicitud");
+        /* !respuesta.ok comprueba si la respuesta HTTP fue exitosa.
+        !resultado.success comprueba si PHP informa que la operación se realizó correctamente.
+        */
     }
+
     return resultado;
 }
-//carga las actividades
+
+//Carga las actividades 
 async function cargarActividades() {
     try {
         const resultado = await solicitarApi("GET");
-        esAdministrador = resultado.rol === "Admin"
-        
-        configurarAcciones();
 
+        const rol = String(resultado.rol || "").trim().toLowerCase();
+        if (!["admin", "administrador", "asociado"].includes(rol)) {
+            throw new Error("No se pudo identificar el rol de la sesión.");
+        }
+        esAdministrador = rol === "admin" || rol === "administrador";
+        configurarAcciones();
         actividades = resultado.actividades;
         mostrarActividades();
-        
-
-
     } catch (error) {
-        alert("Error al cargarlas actividades: " + error.message);
+        alert("Error al cargar las actividades: " + error.message);
     }
 }
 
-    function mostrarActividades() {
-        listaActividades.replaceChildren();
-        //limpia todo lo que tenga la tabla : replaceChildren
+function mostrarActividades() {
+    listaActividades.replaceChildren();
 
-        //si no encuentra actividades en la base de datos ejecuta este if
-        //crea uno que dice que no hay actividades
-        if (actividades.length === 0) {
-            const fila = document.createElement("tr");
-            const celda = document.createElement("td");
-            celda.colSpan = esAdministrador ? 5 : 4; // SI ES administrador crea 5 celdas, si no crea , y trae los datos de la base de datos 
-            celda.className = "text-center py-4 text-muted";
-            celda.textContent = "No hay actividades disponibles.";
+    // Crea una fila y guarda que no hay actividades disponibles, lo crea  solo si no encuentra las actividades en la base de datos.
+    if (actividades.length === 0) {
+        const fila = document.createElement("tr");
+        const celda = document.createElement("td");
+        celda.colSpan = esAdministrador ? 5 : 4; //Si es administrador crea 5 celdas , si no es admin crea 4 , trae lo de la base de datos.
+        celda.className = "text-center py-4 text-muted";
+        celda.textContent = "No hay actividades disponibles. ";
+        fila.append(celda);
+        listaActividades.append(fila);
+        return;
+    }
 
-            //filas siempre van primero 
-            fila.append(celda);
-            listaActividades.append(fila);
+    actividades.forEach((actividad) => {
+        const fila = document.createElement("tr");
+        fila.append(
+            crearCelda(actividad.nombreActividad),
+            crearCelda(actividad.fechaEvento),
+            crearCelda(actividad.municipio),
+            crearCelda(actividad.totalRecaudado === null ? "Pendiente" : Number(actividad.totalRecaudado).toLocaleString("es-CO", { style: "currency", currency: "COP" })),
+        );
+        if (esAdministrador) {
+            const acciones = document.createElement("td");
+            acciones.className = "text-nowrap";
 
-            //append es agregar o añadir, agrega contenido al final de algo que ya existe sin eliminar nada anterior
-            return;
+            const botonEditar = document.createElement("button");
+            botonEditar.type = "button";
+            botonEditar.className = "btn btn-sm btn-outline-primary me-2";
+            botonEditar.innerHTML = '<i class="bi bi-pencil-square" aria-hidden="true"></i>';
+            botonEditar.addEventListener("click", () => abrirEdicion(actividad));
+
+
+            const botonEliminar = document.createElement("button");
+            botonEliminar.type = "button";
+            botonEliminar.className = "btn btn-sm btn-outline-danger";
+            botonEliminar.innerHTML = '<i class="bi bi-trash3-fill" aria-hidden="true"></i>';
+            botonEliminar.addEventListener("click", () => 
+                eliminarActividad(actividad));
+
+            acciones.append(botonEditar, botonEliminar);//.append agregar a la celda los botones.
+            fila.append(acciones);
 
         }
-        //recorre el arreglo 
-        //todos los registros que encuentre en la bse de datos
-        actividades.forEach((actividad) => {
-            const fila = document.createElement("tr");
-            //cada que encuentra una actividad crea una fila
-            fila.append(
-                crearCelda(actividad.nombreActividad),
-                crearCelda(actividad.fechaEvento),
-                crearCelda(actividad.municipio),
-                crearCelda(actividad.totalRecaudo === null ? "Pendiente" : Number(actividad.totalRecaudado).toLocaleString("es-CO", { style: "currency", currency: "COP" })),
-                // si no lo encuentra lo pone null y sale pendiente, lo cambie a moneda por lo tanto pone el signo $
-            );
-            //si es verdadero
-            if (esAdministrador) {
-                const acciones = document.createElement("td");
-                acciones.className = "text-nowrap";
+        listaActividades.append(fila);
+    });
+}
 
-                //crear bootn editar
+function crearCelda(texto){
+    const celda = document.createElement("td");
+    celda.textContent = texto;
+    return celda;
+}
 
-                const botonEditar = document.createElement("button");
-                botonEditar.type = "button";
-                botonEditar.className = "btn btn-sm btn-outline-primary me-2";
-                //tipo de boton segun boostrap
-                botonEditar.ineerHTML = '<i class= "bi bi-pencil"></i>';
-                //llama al icono
-                botonEditar.addEventListener("click", () => abrirEdicion(actividad));
-            }
-            if (esAdministrador) {
-                const acciones = document.createElement("td");
-                acciones.className = "text-nowrap";
+async function eliminarActividad(actividad){
+    const confirmar = window.confirm(
+        `¿Desea eliminar la actividad "${actividad.nombreActividad}"?`
+    );
 
-                //crear bootn eliminar
-
-                const botonEliminar = document.createElement("button");
-                botonEliminar.type = "button";
-                botonEliminar.className = "btn btn-sm btn-outline-primary me-2";
-                //tipo de boton segun boostrap
-                botonEliminar.ineerHTML = '"<i class="bi bi-x-octagon-fill"></i>"';
-                //llama al icono
-                botonEliminar.addEventListener("click", () => abrirEdicion(actividad));
-
-                //agrega estos botones 
-                acciones.append(botonEditar, botonEliminar);
-                fila.append(acciones);
-            }
-            // th son encabezados 
-            //td son encabezados en otro formato 
-            listaActividades.append(fila);
-        });
-
-
-    }
-    function crearCelda(texto){
-        const celda = document.createElement("td");
-        celda.textContent = texto;
-        //devuelve solo el texto de la celda  
-        return celda;
+    if(!confirmar){
+        return;
     }
 
+    try {
+        await solicitarApi ("DELETE",{idActividad:actividad.idActividad});
+        await cargarActividades(); 
+        alert("actividad eliminada correctamente");
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+async function abrirEdicion(actividad) {
+    sessionStorage.setItem("actividadEditar", JSON.stringify(actividad));
+    window.location.href = "RegistroActividades.html";
+}
+
+function configurarAcciones(){
+    const botonNueva = document.getElementById("nuevaActividad");
+    const encabezadoAcciones = document.getElementById("encabezadoAcciones");
+
+    if (botonNueva) {
+        botonNueva.classList.toggle("d-none", !esAdministrador);
+    }
+    if (encabezadoAcciones) {
+        encabezadoAcciones.classList.toggle("d-none", !esAdministrador);
+    }
+}
+const rolLocal = (localStorage.getItem("rol") || "").trim().toLowerCase();
+if (formularioActividad && !["admin", "administrador"].includes(rolLocal)) {
+    sessionStorage.removeItem("actividadEditar");
+    window.location.replace("Actividades.html");
+} else if (formularioActividad) {
+    const actividadEditarTexto = sessionStorage.getItem("actividadEditar");
+
+    if (actividadEditarTexto) {
+        const actividadEditar = JSON.parse(actividadEditarTexto);
+        document.getElementById("idActividad").value = actividadEditar.idActividad;
+        document.getElementById("nombreActividad").value = actividadEditar.nombreActividad;
+        document.getElementById("fechaEvento").value = actividadEditar.fechaEvento;
+        document.getElementById("municipio").value = actividadEditar.municipio;
+        document.getElementById("totalRecaudo").value = actividadEditar.totalRecaudado ?? "";
+        document.querySelector("h2").textContent = "Editar actividad";
+        formularioActividad.querySelector('button[type="submit"]').textContent = "Guardar cambios";
+        sessionStorage.removeItem("actividadEditar");
+    }
+
+    formularioActividad.addEventListener("submit", async (evento) => {
+        evento.preventDefault();
+
+        const idActividad = document.getElementById("idActividad")?.value || "";
+        const totalRecaudado = formularioActividad.elements.totalRecaudado.value;
+        const datos = {
+            nombreActividad: formularioActividad.elements.nombreActividad.value.trim(),
+            fechaEvento: formularioActividad.elements.fechaEvento.value,
+            municipio: formularioActividad.elements.municipio.value.trim(),
+            totalRecaudado: totalRecaudado === "" ? null : Number(totalRecaudado)
+        };
+
+        if (idActividad) {
+            datos.idActividad = Number(idActividad);
+        }
+
+        try {
+            await solicitarApi(idActividad ? "PUT" : "POST", datos);
+            alert(idActividad ? "Actividad actualizada correctamente" : "Actividad creada correctamente");
+            window.location.href = "Actividades.html";
+        } catch (error) {
+            alert(error.message);
+        }
+    });
+}
+
+if (listaActividades) {
     cargarActividades();
-
-
+}

@@ -51,7 +51,7 @@
 
     <div class="container py-4">
         <h5 class="mb-4 fw-bold">Modulos de club asociados</h5>
-        <div id="tarjetasadministrador" class="row g-4">
+        <div id="TarjetasAdministrador" class="row g-4 d-none">
 
             <div class="col-md-3">
                 <a href="Asociados.html" class="text-decoration-none text-dark">
@@ -108,33 +108,41 @@
             </div>
 
 
-            <div id="TarjetaAsociados" class="row g-4 d-none">
-                <div class="col-md-3">
-                    <div class="card modulo-card asociado shadow-sm p-3">
-                        <i class="bi bi-shield icono-principal"></i>
-                        <h4 class="text-primary">Asociados</h4>
-                        <strong>Gestion de asociados</strong>
-                        <p class="small text-muted mt-2">administra informacion de los asociados, incluyendo sus
-                            datos
-                            personales historia de membresia y estado de cuenta </p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card modulo-card asociado shadow-sm p-3">
-                        <i class="bi bi-shield icono-principal"></i>
-                        <h4 class="text-primary">Pagos</h4>
-                        <strong>Gestion de pagos</strong>
-                        <p class="small text-muted mt-2">administra informacion de los pagos, incluyendo detalles
-                            del pago, estado y gestion de confirmaciones </p>
-                    </div>
+        </div>
 
-                </div>
+        <div id="TarjetaAsociados" class="row g-4 d-none">
+            <div class="col-md-3">
+                <a href="Prestamos.html" class="text-decoration-none text-dark">
+                    <div class="card modulo-card asociado shadow-sm p-3">
+                        <i class="bi bi-cash-stack icono-principal"></i>
+                        <h4 class="text-primary">Mis préstamos</h4>
+                        <strong>Consulta de préstamos</strong>
+                        <p class="small text-muted mt-2">Consulta únicamente tus préstamos.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="Pago.html" class="text-decoration-none text-dark">
+                    <div class="card modulo-card asociado shadow-sm p-3">
+                        <i class="bi bi-cash-coin icono-principal"></i>
+                        <h4 class="text-primary">Mis pagos</h4>
+                        <strong>Consulta de pagos</strong>
+                        <p class="small text-muted mt-2">Consulta únicamente tus pagos.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="Actividades.html" class="text-decoration-none text-dark">
+                    <div class="card modulo-card asociado shadow-sm p-3">
+                        <i class="bi bi-calendar-event icono-principal"></i>
+                        <h4 class="text-primary">Actividades</h4>
+                        <strong>Consulta de actividades</strong>
+                        <p class="small text-muted mt-2">Consulta las actividades del club.</p>
+                    </div>
+                </a>
             </div>
         </div>
         <script src="../controllers/Dashboard.js"></script>
-</body>
-
-</html>
 </body>
 
 </html>

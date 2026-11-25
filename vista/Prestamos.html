@@ -8,13 +8,13 @@
     <title>Registro de Préstamos | Club Acerías</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 </head>
 
 <style>
-    .container {
-        max-width: 650px;
-        margin: 0 auto;
-        padding: 30px;
+    .contenedor-tabla {
+        margin: 30px;
+        padding: 20px;
         background-color: #ffffff;
         border-radius: 15px;
         box-shadow: 0 4px 15px rgba(196, 93, 131, 0.15);
@@ -66,105 +66,86 @@
 </style>
 
 <body>
+    <div class="contenedor-tabla">
+        <h2 class="text-center mb-4">Tabla de préstamos</h2>
 
-    <div class="container mt-5">
-
-        <h2 class="text-center mb-2">Registro de Préstamos</h2>
-        <form>
-            <h5 class="seccion">Información del asociado</h5>
-            <label for="documento" class="form-label">
-                Número de documento:
-            </label>
-            <input type="number" class="form-control mb-3"
-                id="documento" name="documento"
-                placeholder="Ingrese el documento del asociado">
-            <label for="asociado" class="form-label">
-                Nombre del asociado:
-            </label>
-            <input type="text" class="form-control mb-3"
-                id="asociado" name="asociado"
-                placeholder="Ingrese el nombre completo">
-            <h5 class="seccion">Información del préstamo</h5>
-            <label for="elemento" class="form-label">
-                Elemento o recurso prestado:
-            </label>
-            <select class="form-select mb-3" id="elemento" name="elemento">
-                <option value="">Seleccione un elemento</option>
-                <option>Balón</option>
-                <option>Uniforme</option>
-                <option>Implementos deportivos</option>
-                <option>Equipo de sonido</option>
-                <option>Otro</option>
-            </select>
-
-            <label for="cantidad" class="form-label">
-                Cantidad:
-            </label>
-
-            <input type="number" class="form-control mb-3"
-                id="cantidad" name="cantidad"
-                min="1" placeholder="Ingrese la cantidad">
-
-            <label for="fechaPrestamo" class="form-label">
-                Fecha del préstamo:
-            </label>
-
-            <input type="date" class="form-control mb-3"
-                id="fechaPrestamo" name="fechaPrestamo">
-
-            <label for="fechaDevolucion" class="form-label">
-                Fecha de devolución:
-            </label>
-
-            <input type="date" class="form-control mb-3"
-                id="fechaDevolucion" name="fechaDevolucion">
-
-        
-
-            <h5 class="seccion">Estado del préstamo</h5>
-
-            <label for="estado" class="form-label">
-                Estado:
-            </label>
-
-            <select class="form-select mb-3" id="estado" name="estado">
-                <option value="">Seleccione un estado</option>
-                <option>Pendiente</option>
-                <option>Entregado</option>
-                <option>Devuelto</option>
-                <option>Retrasado</option>
-            </select>
-
-            <label for="observaciones" class="form-label">
-                Observaciones:
-            </label>
-
-            <textarea class="form-control mb-3"
-                id="observaciones" name="observaciones"
-                rows="3"
-                placeholder="Ingrese alguna observación sobre el préstamo"></textarea>
-
-  
-
-            <div class="d-flex justify-content-end gap-2 mt-4 flex-wrap">
-
-                <button type="reset" class="btn btn-light">
-                    Limpiar
-                </button>
-
-                <button type="button" class="btn btn-secondary">
-                    Cancelar
-                </button>
-
-                <button type="submit" class="btn btn-danger">
-                    Registrar préstamo
-                </button>
-
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col">Documento</th>
+                            <th scope="col">Asociado</th>
+                            <th scope="col">Valor</th>
+                            <th scope="col">Interés</th>
+                            <th scope="col">Cuotas</th>
+                            <th scope="col">Fecha</th>
+                            <th id="encabezadoAcciones" class="d-none" scope="col">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaPrestamos">
+                        <tr>
+                            <td colspan="7" class="text-center py-4">No hay préstamos registrados.</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
+        </div>
 
-        </form>
-
+        <div class="text-end mt-3">
+            <button type="button" id="nuevoPrestamo" class="btn btn-danger d-none" data-bs-toggle="modal"
+                data-bs-target="#modalPrestamo">
+                + Nuevo préstamo
+            </button>
+        </div>
     </div>
 
+    <div class="modal fade" id="modalPrestamo" tabindex="-1" aria-labelledby="tituloModalPrestamo"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="tituloModalPrestamo">Registro de préstamo</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formularioPrestamo">
+                        <h5 class="seccion">Información del asociado</h5>
+                        <label for="documento" class="form-label">Número de documento:</label>
+                        <input type="number" class="form-control mb-3" id="documento" name="documento"
+                            placeholder="Ingrese el documento del asociado" required>
+
+                        <label for="asociado" class="form-label">Nombre del asociado:</label>
+                        <input type="text" class="form-control mb-3" id="asociado" name="asociado"
+                            placeholder="Ingrese el nombre completo" required>
+
+                        <h5 class="seccion">Información del préstamo</h5>
+                        <label for="valorPrestamo" class="form-label">Valor del préstamo:</label>
+                        <input type="number" class="form-control mb-3" id="valorPrestamo" name="valorPrestamo"
+                            min="0" step="0.01" placeholder="Ingrese el valor" required>
+
+                        <label for="tasaInteres" class="form-label">Tasa de interés:</label>
+                        <input type="number" class="form-control mb-3" id="tasaInteres" name="tasaInteres"
+                            min="0" step="0.01" placeholder="Ingrese la tasa" required>
+
+                        <label for="numeroCuotas" class="form-label">Número de cuotas:</label>
+                        <input type="number" class="form-control mb-3" id="numeroCuotas" name="numeroCuotas"
+                            min="1" placeholder="Ingrese el número de cuotas" required>
+
+                        <label for="fechaPrestamo" class="form-label">Fecha del préstamo:</label>
+                        <input type="date" class="form-control mb-3" id="fechaPrestamo" name="fechaPrestamo" required>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4 flex-wrap">
+                            <button type="reset" class="btn btn-light">Limpiar</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-danger">Registrar préstamo</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../controllers/Prestamos.js"></script>
 </html>

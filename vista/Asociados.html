@@ -5,17 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 </head>
 <style>
-    .container {
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 20px;
-        background-color: #f8f9fa;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(230, 163, 228, 0.1);
-    }
-
     body {
         background-color: #fff0f5;
     }
@@ -45,52 +37,127 @@
     .btn-danger:hover {
         background-color: #a94369;
     }
+
+    .contenedor-tabla {
+        margin: 20px auto;
+        margin-left: 30px;
+        margin-right: 30px;
+    }
 </style>
+
 <body>
-    <div class="container mt-5">
-        <h2>Registro de Asociados</h2>
-        <form>
-            <label for="documento" class="form-label">Número de documento:</label>
-            <input type="number" class="form-control mb-3" id="documento" name="documento"
-                placeholder="Ingrese el documento">
 
-            <label for="nombres" class="form-label">Nombres:</label>
-            <input type="text" class="form-control mb-3" id="nombres" name="nombres" placeholder="Ingrese los nombres">
+    <div id="contenedorTabla" class="contenedor-tabla">
+        <h2 class="text-center mb-4">Tabla de asociado</h2>
 
-            <label for="apellidos" class="form-label">Apellidos:</label>
-            <input type="text" class="form-control mb-3" id="apellidos" name="apellidos"
-                placeholder="Ingrese los apellidos">
-
-            <label for="fechaNacimiento" class="form-label">Fecha de nacimiento:</label>
-            <input type="date" class="form-control mb-3" id="fechaNacimiento" name="fechaNacimiento">
-
-            <label for="telefono" class="form-label">Teléfono:</label>
-            <input type="tel" class="form-control mb-3" id="telefono" name="telefono" placeholder="Ingrese el teléfono">
-
-            <label for="correo" class="form-label">Correo electrónico:</label>
-            <input type="email" class="form-control mb-3" id="correo" name="correo" placeholder="ejemplo@correo.com">
-
-            <label for="direccion" class="form-label">Dirección:</label>
-            <input type="text" class="form-control mb-3" id="direccion" name="direccion"
-                placeholder="Ingrese la dirección">
-
-            <label for="fechaIngreso" class="form-label">Fecha de ingreso:</label>
-            <input type="date" class="form-control mb-3" id="fechaIngreso" name="fechaIngreso">
-
-            <label for="estado" class="form-label">Estado del asociado:</label>
-            <select class="form-select mb-3" id="estado" name="estado">
-                <option value="">Seleccione el estado</option>
-                <option>Activo</option>
-                <option>Inactivo</option>
-            </select>
-            <div class="d-flex justify-content-end gap-2 mt-4">
-                <button type="reset" class="btn btn-light">Limpiar</button>
-                <button type="button" class="btn btn-secondary">Cancelar</button>
-                <button type="submit" class="btn btn-danger">Registrar asociado</button>
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col">Asociado</th>
+                            <th scope="col">Fecha</th>
+                            <th scope="col">Municipio</th>
+                            <th scope="col">Documento</th>
+                            <th id="encabezadoAcciones" class="d-none" scope="col">
+                                Acciones
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaAsociados">
+                        <tr>
+                            <td colspan="5" class="text-center py-4">
+                                Cargando asociados...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-        </form>
+        </div>
+
+        <div class="text-end mt-3">
+            <button type="button" id="nuevoAsociado" class="btn btn-danger d-none" data-bs-toggle="modal"
+                data-bs-target="#modalAsociado">
+                + Nuevo Asociado
+            </button>
+        </div>
     </div>
 
+    <div class="modal fade" id="modalAsociado" tabindex="-1" aria-labelledby="tituloModalAsociado" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="tituloModalAsociado">Registro de Asociados</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formularioAsociado" action="../modelo/guardarAsociado.php" method="POST">
+                        <label for="documento" class="form-label">Número de documento:</label>
+                        <input type="number" class="form-control mb-3" id="documento" name="documento"
+                            placeholder="Ingrese el documento" required>
+
+                        <label for="nombres" class="form-label">Nombres:</label>
+                        <input type="text" class="form-control mb-3" id="nombres" name="nombres"
+                            placeholder="Ingrese los nombres" required>
+
+                        <label for="apellidos" class="form-label">Apellidos:</label>
+                        <input type="text" class="form-control mb-3" id="apellidos" name="apellidos"
+                            placeholder="Ingrese los apellidos" required>
+
+                        <label for="fechaNacimiento" class="form-label">Fecha de nacimiento:</label>
+                        <input type="date" class="form-control mb-3" id="fechaNacimiento" name="fechaNacimiento"
+                            required>
+
+                        <label for="telefono" class="form-label">Teléfono:</label>
+                        <input type="tel" class="form-control mb-3" id="telefono" name="telefono"
+                            placeholder="Ingrese el teléfono" required>
+
+                        <label for="correo" class="form-label">Correo electrónico:</label>
+                        <input type="email" class="form-control mb-3" id="correo" name="email"
+                            placeholder="ejemplo@correo.com" required>
+
+                        <label for="direccion" class="form-label">Dirección:</label>
+                        <input type="text" class="form-control mb-3" id="direccion" name="direccionResidencia"
+                            placeholder="Ingrese la dirección" required>
+
+                        <label for="ciudad" class="form-label">Ciudad:</label>
+                        <select class="form-select mb-3" id="ciudad" name="ciudad" required>
+                            <option value="">Seleccione la ciudad</option>
+                            <option value="Sogamoso">Sogamoso</option>
+                            <option value="Duitama">Duitama</option>
+                            <option value="Tunja">Tunja</option>
+                            <option value="Bogota">Bogota</option>
+                        </select>
+
+                        <label for="genero" class="form-label">Género:</label>
+                        <select class="form-select mb-3" id="genero" name="genero" required>
+                            <option value="">Seleccione el género</option>
+                            <option value="Femenino">Femenino</option>
+                            <option value="Masculino">Masculino</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+
+                        <label for="contrasena" class="form-label">Contraseña:</label>
+                        <input type="password" class="form-control mb-3" id="contrasena" name="contrasena" minlength="8"
+                            placeholder="Ingrese una contraseña" required>
+
+                        <label for="confirmarContrasena" class="form-label">Confirmar contraseña:</label>
+                        <input type="password" class="form-control mb-3" id="confirmarContrasena"
+                            name="confirmarContrasena" minlength="8" placeholder="Confirme la contraseña" required>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <button type="reset" class="btn btn-light">Limpiar</button>
+                            <button type="button" id="cancelar" class="btn btn-secondary"
+                                data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-danger">Registrar asociado</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../controllers/Asociado.js"></script>
 
 </html>

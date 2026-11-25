@@ -48,4 +48,52 @@ class Asociado {
             ":contrasena" => $this->Contraseña
         ]);                                            // CORREGIDO: Faltaba el punto y coma (;) al final
     }
+
+    public static function listar() {
+        $conexion = new Conexion();
+        $consulta = $conexion->conectar()->prepare(
+            "SELECT documento, nombres, apellidos, direccionResidencia, ciudad,
+                    telefono, email, genero, fechaNacimiento
+             FROM asociados
+             ORDER BY nombres, apellidos"
+        );
+        $consulta->execute();
+        return $consulta->fetchAll();
+    }
+
+    public static function editar($datos) {
+        $conexion = new Conexion();
+        $sql = "UPDATE asociados
+                SET nombres = :nombres,
+                    apellidos = :apellidos,
+                    direccionResidencia = :direccionResidencia,
+                    ciudad = :ciudad,
+                    telefono = :telefono,
+                    email = :email,
+                    genero = :genero,
+                    fechaNacimiento = :fechaNacimiento
+                WHERE documento = :documento";
+        $consulta = $conexion->conectar()->prepare($sql);
+        $consulta->execute([
+            ":nombres" => $datos["nombres"],
+            ":apellidos" => $datos["apellidos"],
+            ":direccionResidencia" => $datos["direccionResidencia"],
+            ":ciudad" => $datos["ciudad"],
+            ":telefono" => $datos["telefono"],
+            ":email" => $datos["email"],
+            ":genero" => $datos["genero"],
+            ":fechaNacimiento" => $datos["fechaNacimiento"],
+            ":documento" => $datos["documentoOriginal"]
+        ]);
+        return $consulta->rowCount() > 0;
+    }
+
+    public static function eliminar($documento) {
+        $conexion = new Conexion();
+        $consulta = $conexion->conectar()->prepare(
+            "DELETE FROM asociados WHERE documento = :documento"
+        );
+        $consulta->execute([":documento" => $documento]);
+        return $consulta->rowCount() > 0;
+    }
 }

@@ -1,16 +1,50 @@
 <?php
+session_start();
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ .'/../modelo/Asociado.php';
 
 try{
-
-
-    if($_SERVER['REQUEST_METHOD'] !=='POST'){
+    $metodo = $_SERVER['REQUEST_METHOD'];
+    if(!in_array($metodo, ['GET', 'POST', 'PUT', 'DELETE'], true)){
         http_response_code(405);
-
-        //saltar a catch y mostrar el error
-        throw new exception('Método no permitido. Solo se permite POST');
+        throw new exception('Método no permitido');
     }
+
+    if($metodo === 'GET'){
+        if(!isset($_SESSION['documento'], $_SESSION['rol'])){
+            http_response_code(401);
+            throw new exception('Inicia sesion para consultar los asociados');
+        }
+
+        echo json_encode([
+            'success' => true,
+            'rol' => $_SESSION['rol'],
+            'asociados' => Asociado::listar()
+        ]);
+        exit;
+    }
+
+    if($metodo !== 'POST'){
+        if(!isset($_SESSION['documento'], $_SESSION['rol'])){
+            http_response_code(401);
+            throw new exception('Inicia sesion para realizar esta accion');
+        }
+
+        $rol = mb_strtolower(trim((string) $_SESSION['rol']), 'UTF-8');
+        if(!in_array($rol, ['admin', 'administrador'], true)){
+            http_response_code(403);
+            throw new exception('No tienes permisos para realizar esta accion');
+        }
+    }
+
+    if($metodo === 'POST' && isset($_SESSION['documento'], $_SESSION['rol'])){
+        $rol = mb_strtolower(trim((string) $_SESSION['rol']), 'UTF-8');
+        if(!in_array($rol, ['admin', 'administrador'], true)){
+            http_response_code(403);
+            throw new exception('No tienes permisos para realizar esta accion');
+        }
+    }
+
     //leer el contenido JSON de la solicitud enviada por fetch
     $json = file_get_contents('php://input');
 
@@ -22,6 +56,41 @@ try{
         http_response_code(400);
         throw new exception('Datos inválidos en la solicitud');
     }
+
+    if($metodo === 'DELETE'){
+        $documento = trim((string) ($datos['documento'] ?? ''));
+        if($documento === ''){
+            http_response_code(400);
+            throw new exception('Falta el documento del asociado');
+        }
+        if(!Asociado::eliminar($documento)){
+            http_response_code(404);
+            throw new exception('No se encontro el asociado');
+        }
+        echo json_encode(["success" => true, "message" => "Asociado eliminado exitosamente"]);
+        exit;
+    }
+
+    if($metodo === 'PUT'){
+        $camposEdicion = ["documentoOriginal","nombres","apellidos","direccionResidencia","ciudad","telefono","email","genero","fechaNacimiento"];
+        foreach($camposEdicion as $campo){
+            if(!isset($datos[$campo]) || $datos[$campo] === ''){
+                http_response_code(400);
+                throw new exception("Falta el campo:".$campo);
+            }
+        }
+        if(!filter_var($datos['email'], FILTER_VALIDATE_EMAIL)){
+            http_response_code(400);
+            throw new exception("Email inválido");
+        }
+        if(!Asociado::editar($datos)){
+            http_response_code(404);
+            throw new exception("No se encontro el asociado");
+        }
+        echo json_encode(["success" => true, "message" => "Asociado actualizado exitosamente"]);
+        exit;
+    }
+
     $campos=["documento","nombres","apellidos","direccionResidencia","ciudad","telefono","email","genero","fechaNacimiento","Contraseña"];
     foreach($campos as $campo){
         if(!isset($datos[$campo])){

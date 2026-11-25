@@ -34,7 +34,7 @@ try {
         throw new Exception('Email o contraseña incorrectos');
     }
 
-    $_SESSION['rol'] = strtolower($asociado['Rol']);
+    $_SESSION['rol'] = trim((string) $asociado['Rol']);
     $_SESSION['documento'] = $asociado['documento'];
 
     echo json_encode([

@@ -1,19 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagos | Club Acerías</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 </head>
 <style>
-    .container {
-        max-width: 600px;
-        margin: 0 auto;
+    .contenedor-tabla {
+        margin: 30px;
         padding: 20px;
-        background-color: #f8f9fa;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(230, 163, 228, 0.1);
+        background-color: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(196, 93, 131, 0.15);
     }
 
     body {
@@ -48,57 +49,72 @@
 </style>
 
 <body>
-    <div class="container mt-5">
-        <h2 class="text-center mb-4">Registro de Pago</h2>
-        <form>
-            <label for="asociado" class="form-label">Nombre del asociado:</label>
-            <input type="text" class="form-control mb-3" id="asociado" name="asociado"
-                placeholder="Ingrese el nombre del asociado">
+    <div id="contenedorTabla" class="contenedor-tabla">
+        <h2 class="text-center mb-4">Tabla de pagos</h2>
 
-            <label for="documento" class="form-label">Número de documento:</label>
-            <input type="number" class="form-control mb-3" id="documento" name="documento"
-                placeholder="Ingrese el documento">
-
-            <label for="concepto" class="form-label">Concepto del pago:</label>
-            <select class="form-select mb-3" id="concepto" name="concepto">
-                <option value="">Seleccione el concepto</option>
-                <option>Mensualidad</option>
-                <option>Inscripción</option>
-                <option>Actividad</option>
-                <option>Otro</option>
-            </select>
-
-            <label for="valor" class="form-label">Valor del pago:</label>
-            <input type="number" class="form-control mb-3" id="valor" name="valor" placeholder="Ingrese el valor">
-
-            <label for="fecha" class="form-label">Fecha del pago:</label>
-            <input type="date" class="form-control mb-3" id="fecha" name="fecha">
-
-            <label for="metodo" class="form-label">Método de pago:</label>
-            <select class="form-select mb-3" id="metodo" name="metodo">
-                <option value="">Seleccione un método</option>
-                <option>Efectivo</option>
-                <option>Transferencia</option>
-                <option>Consignación</option>
-                <option>Tarjeta</option>
-            </select>
-
-            <label for="referencia" class="form-label">Número de referencia:</label>
-            <input type="text" class="form-control mb-3" id="referencia" name="referencia"
-                placeholder="Número de comprobante (opcional)">
-
-            <label for="observaciones" class="form-label">Observaciones:</label>
-            <textarea class="form-control mb-3" id="observaciones" name="observaciones"
-                placeholder="Observaciones del pago"></textarea>
-            <div class="d-flex justify-content-end gap-2 mt-4">
-                <button type="reset" class="btn btn-light">Limpiar</button>
-                <button type="button" class="btn btn-secondary">Cancelar</button>
-                <button type="submit" class="btn btn-danger">Registrar pago</button>
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col">Documento</th>
+                            <th scope="col">Asociado</th>
+                            <th scope="col">Valor</th>
+                            <th scope="col">Fecha</th>
+                            <th scope="col">Préstamo</th>
+                            <th id="encabezadoAcciones" class="d-none" scope="col">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaPagos">
+                        <tr>
+                            <td colspan="6" class="text-center py-4">No hay pagos registrados.</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
+        </div>
 
-        </form>
+        <div class="text-end mt-3">
+            <button type="button" id="nuevoPago" class="btn btn-danger d-none" data-bs-toggle="modal"
+                data-bs-target="#modalPago">
+                + Nuevo pago
+            </button>
+        </div>
     </div>
 
-</body>
+    <div class="modal fade" id="modalPago" tabindex="-1" aria-labelledby="tituloModalPago"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="tituloModalPago">Registro de pago</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formularioPago">
+                        <label for="idPrestamo" class="form-label">Préstamo:</label>
+                        <input type="number" class="form-control mb-3" id="idPrestamo" name="idPrestamo"
+                            placeholder="Ingrese el ID del préstamo" required>
 
+                        <label for="valorCuota" class="form-label">Valor del pago:</label>
+                        <input type="number" class="form-control mb-3" id="valorCuota" name="valorCuota"
+                            min="0" step="0.01" placeholder="Ingrese el valor" required>
+
+                        <label for="fechaPago" class="form-label">Fecha del pago:</label>
+                        <input type="date" class="form-control mb-3" id="fechaPago" name="fechaPago" required>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <button type="reset" class="btn btn-light">Limpiar</button>
+                            <button type="button" class="btn btn-secondary"
+                                data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-danger">Registrar pago</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../controllers/Pago.js"></script>
 </html>
