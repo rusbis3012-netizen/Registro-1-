@@ -107,6 +107,7 @@ class Pago {
             }
 
             $cuotaMensual = $this->calcularCuotaMensual(
+                //float permite decimales
                 (float) $prestamo['valorPrestamo'],
                 (float) $prestamo['tasaInteres'],
                 $numeroCuotas
@@ -202,28 +203,39 @@ class Pago {
         return $consulta->fetch();
     }
 
+    // Calcula cuánto se debe pagar en cada cuota mensual del préstamo.
     private function calcularCuotaMensual($valorPrestamo, $tasaInteres, $numeroCuotas) {
+        // Evita calcular la cuota si los datos del préstamo no son válidos.
         if ($valorPrestamo <= 0 || $tasaInteres < 0 || $numeroCuotas <= 0) {
             throw new Exception('Los datos del prestamo no permiten calcular la cuota');
         }
 
+        // Convierte el porcentaje de interés a una tasa decimal.
         $tasaMensual = $tasaInteres / 100;
+        // Si no hay interés, divide el préstamo en partes iguales.
         if ($tasaMensual === 0.0) {
             return round($valorPrestamo / $numeroCuotas, 2);
         }
 
+        // Calcula la cuota fija con interés compuesto y redondea a dos decimales.
         return round(
             $valorPrestamo * $tasaMensual / (1 - pow(1 + $tasaMensual, -$numeroCuotas)),
             2
         );
     }
 
+    // Obtiene las fechas que delimitan el mes actual y la fecha de pago de hoy.
     private function rangoMesActual() {
+        // Usa la zona horaria de Colombia para definir las fechas correctamente.
         $zonaHoraria = new DateTimeZone('America/Bogota');
+        // Calcula el primer día del mes actual.
         $inicioMes = new DateTimeImmutable('first day of this month', $zonaHoraria);
+        // Calcula el primer día del mes siguiente para marcar el límite del período.
         $inicioMesSiguiente = $inicioMes->modify('first day of next month');
+        // Obtiene la fecha de hoy, sin incluir la hora.
         $fechaPago = new DateTimeImmutable('today', $zonaHoraria);
 
+        // Devuelve el inicio del mes, el inicio del siguiente y la fecha de hoy.
         return [
             $inicioMes->format('Y-m-d'),
             $inicioMesSiguiente->format('Y-m-d'),
